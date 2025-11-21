@@ -41,15 +41,29 @@ function abrirModal(id) {
   // Limpiar listeners previos
   modal.onclick = null;
 
-  // Clic para avanzar
+  // Añadimos listener general para avanzar
   modal.addEventListener("click", avanzarHandler);
+
+  // También avanza si haces clic dentro del contenido
+  const content = modal.querySelector(".modal-content");
+  if (content) {
+    content.addEventListener("click", avanzarContenido);
+  }
 }
 
 function avanzarHandler(e) {
   if (!modalActivo) return;
 
-  // Si clic dentro del contenido, no avanzar
+  // Si clic dentro del contenido NO debe cerrar el modal,
+  // pero sí queremos avanzar → evitar cierre pero dejar avanzar
   if (e.target.closest(".modal-content")) return;
+
+  avanzarSeccion(modalActivo);
+}
+
+function avanzarContenido(e) {
+  e.stopPropagation(); // evita desencadenar el clic del overlay
+  if (!modalActivo) return;
 
   avanzarSeccion(modalActivo);
 }
@@ -96,6 +110,12 @@ function cerrarModal(id) {
 
   modal.style.display = "none";
   modal.removeEventListener("click", avanzarHandler);
+
+  const content = modal.querySelector(".modal-content");
+  if (content) {
+    content.removeEventListener("click", avanzarContenido);
+  }
+
   modalActivo = null;
 }
 
@@ -122,3 +142,4 @@ if (selectPerfil) {
     });
   });
 }
+
